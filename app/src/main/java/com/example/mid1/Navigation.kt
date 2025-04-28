@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,8 +15,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mid1.screens.HomeScreen
-import com.example.mid1.screens.ProfileScreen
 import com.example.mid1.screens.PlanetsScreen
+import com.example.mid1.screens.ProfileScreen
+import com.example.mid1.presentation.screens.YourScreen
 
 @Composable
 fun SpaceApp() {
@@ -33,6 +35,7 @@ fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
         composable("home") { HomeScreen() }
         composable("profile") { ProfileScreen() }
         composable("planets") { PlanetsScreen() }
+        composable("your") { YourScreen() }
     }
 }
 
@@ -41,8 +44,8 @@ fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem("home", "Home", Icons.Filled.Home),
         BottomNavItem("profile", "Profile", Icons.Filled.Person),
-        BottomNavItem("planets", "Planets", Icons.Filled.Public)
-
+        BottomNavItem("planets", "Planets", Icons.Filled.Public),
+        BottomNavItem("your", "Your Items", Icons.Filled.Add)
     )
 
     NavigationBar {
@@ -53,11 +56,23 @@ fun BottomNavigationBar(navController: NavHostController) {
             NavigationBarItem(
                 label = { Text(item.label) },
                 selected = currentRoute == item.route,
-                onClick = { if (currentRoute != item.route) navController.navigate(item.route) },
+                onClick = {
+                    if (currentRoute != item.route) {
+                        navController.navigate(item.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                },
                 icon = { Icon(item.icon, contentDescription = item.label) }
             )
         }
     }
 }
 
-data class BottomNavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+data class BottomNavItem(
+    val route: String,
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
